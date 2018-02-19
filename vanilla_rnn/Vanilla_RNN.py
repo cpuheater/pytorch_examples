@@ -32,7 +32,7 @@ class Net(nn.Module):
             batch_first=True,
         )
         for p in self.rnn.parameters():
-          init.normal(p)
+          init.normal(p, mean=0.0, std=0.001)
         self.linear = nn.Linear(hidden_size, output_size)
 
     def forward(self, x, hidden_prev):
@@ -51,6 +51,7 @@ x, y = Variable(x), Variable(y)
 for iter in range(1000):
       output, hidden_prev = model(x, hidden_prev)
       hidden_prev = Variable(hidden_prev.data)
+      print(hidden_prev.data.numpy())
       loss = criterion(output, y)
       model.zero_grad()
       loss.backward()
