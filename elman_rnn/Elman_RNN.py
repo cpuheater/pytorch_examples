@@ -6,14 +6,14 @@ import time
 import torch.nn.init as init
 
 dtype = torch.FloatTensor
-input_size, hidden_size, output_size = 10, 9, 1
+input_size, hidden_size, output_size = 15, 14, 1
 epochs = 300
-num_time_steps = 10
+seq_length = 20
 lr = 0.1
 
-time_steps = np.linspace(2, 5, num_time_steps)
-data = np.sin(time_steps)
-data.resize((num_time_steps, 1))
+data_time_steps = np.linspace(2, 10, seq_length + 1)
+data = np.sin(data_time_steps)
+data.resize((seq_length + 1, 1))
 
 x = Variable(torch.Tensor(data[:-1]).type(dtype), requires_grad=False)
 y = Variable(torch.Tensor(data[1:]).type(dtype), requires_grad=False)
@@ -61,6 +61,6 @@ for i in range(x.size(0)):
   predictions.append(pred.data.numpy().ravel()[0])
 
 
-pl.scatter(time_steps[:-1], x.data.numpy(), s=90)
-pl.scatter(time_steps[1:], predictions)
+pl.scatter(data_time_steps[:-1], x.data.numpy(), s=90)
+pl.scatter(data_time_steps[1:], predictions)
 pl.show()
