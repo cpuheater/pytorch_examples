@@ -32,12 +32,12 @@ def forward(x,w1, w2):
 
 for i in range(epochs):
   total_loss = 0
-  hidden_state = Variable(torch.zeros((1, hidden_size)).type(dtype), requires_grad=True)
+  context_state = Variable(torch.zeros((1, hidden_size)).type(dtype), requires_grad=True)
   for j in range(x.size(0)):
     input = x[j:(j+1)]
     target = y[j:(j+1)]
-    xh = torch.cat((input, hidden_state), 1)
-    (pred, hidden_state) = forward(xh, w1, w2)
+    xh = torch.cat((input, context_state), 1)
+    (pred, context_state) = forward(xh, w1, w2)
     loss = (pred - target).pow(2).sum()/2
     total_loss += loss
     loss.backward()
@@ -45,18 +45,18 @@ for i in range(epochs):
     w2.data -= lr * w2.grad.data
     w1.grad.data.zero_()
     w2.grad.data.zero_()
-    hidden_state = Variable(hidden_state.data)
+    context_state = Variable(context_state.data)
   if i % 10 == 0:
      print("Epoch: {} loss {}".format(i, total_loss.data[0]))
 
 
-hidden_state = Variable(torch.zeros((1, hidden_size)).type(dtype), requires_grad=False)
+context_state = Variable(torch.zeros((1, hidden_size)).type(dtype), requires_grad=False)
 predictions = []
 input = x[0:(1)]
 for i in range(x.size(0)):
-  xh = torch.cat((input, hidden_state), 1)
-  (pred, hidden_state) = forward(xh, w1, w2)
-  hidden_state = hidden_state
+  xh = torch.cat((input, context_state), 1)
+  (pred, context_state) = forward(xh, w1, w2)
+  context_state = context_state
   input = pred
   predictions.append(pred.data.numpy().ravel()[0])
 
