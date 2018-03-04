@@ -5,8 +5,11 @@ import pylab as pl
 import time
 import torch.nn.init as init
 
+
+torch.manual_seed(1)
+
 dtype = torch.FloatTensor
-input_size, hidden_size, output_size = 15, 14, 1
+input_size, hidden_size, output_size = 7, 6, 1
 epochs = 300
 seq_length = 20
 lr = 0.1
@@ -25,10 +28,11 @@ w2 = torch.FloatTensor(hidden_size, output_size).type(dtype)
 init.normal(w2, 0.0, 0.3)
 w2 = Variable(w2, requires_grad=True)
 
-def forward(x,w1, w2):
-  hidden = torch.tanh(x.mm(w1))
-  out = hidden.mm(w2)
-  return  (out, hidden)
+def forward(x,context_state, w1, w2):
+  xh = torch.cat((input, context_state), 1)
+  context_state = torch.tanh(xh.mm(w1))
+  out = context_state.mm(w2)
+  return  (out, context_state)
 
 for i in range(epochs):
   total_loss = 0
@@ -36,8 +40,7 @@ for i in range(epochs):
   for j in range(x.size(0)):
     input = x[j:(j+1)]
     target = y[j:(j+1)]
-    xh = torch.cat((input, context_state), 1)
-    (pred, context_state) = forward(xh, w1, w2)
+    (pred, context_state) = forward(x, context_state, w1, w2)
     loss = (pred - target).pow(2).sum()/2
     total_loss += loss
     loss.backward()
@@ -52,10 +55,10 @@ for i in range(epochs):
 
 context_state = Variable(torch.zeros((1, hidden_size)).type(dtype), requires_grad=False)
 predictions = []
-input = x[0:(1)]
+
 for i in range(x.size(0)):
-  xh = torch.cat((input, context_state), 1)
-  (pred, context_state) = forward(xh, w1, w2)
+  input = x[i:i+1]
+  (pred, context_state) = forward(x, context_state, w1, w2)
   context_state = context_state
   input = pred
   predictions.append(pred.data.numpy().ravel()[0])
