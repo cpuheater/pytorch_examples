@@ -2,7 +2,6 @@ import torch
 from torch.autograd import Variable
 import numpy as np
 import pylab as pl
-import time
 import torch.nn.init as init
 
 
@@ -64,6 +63,7 @@ for i in range(x.size(0)):
   predictions.append(pred.data.numpy().ravel()[0])
 
 
-pl.scatter(data_time_steps[:-1], x.data.numpy(), s=90)
-pl.scatter(data_time_steps[1:], predictions)
+pl.scatter(data_time_steps[:-1], x.data.numpy(), s=90, label="Actual")
+pl.scatter(data_time_steps[1:], predictions, label="Predicted")
+pl.legend()
 pl.show()
