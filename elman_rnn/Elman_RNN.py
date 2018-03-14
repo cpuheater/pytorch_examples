@@ -9,7 +9,7 @@ torch.manual_seed(1)
 
 dtype = torch.FloatTensor
 input_size, hidden_size, output_size = 7, 6, 1
-epochs = 300
+epochs = 200
 seq_length = 20
 lr = 0.1
 
@@ -57,9 +57,8 @@ predictions = []
 
 for i in range(x.size(0)):
   input = x[i:i+1]
-  (pred, context_state) = forward(x, context_state, w1, w2)
+  (pred, context_state) = forward(input, context_state, w1, w2)
   context_state = context_state
-  input = pred
   predictions.append(pred.data.numpy().ravel()[0])
 
 
@@ -67,3 +66,5 @@ pl.scatter(data_time_steps[:-1], x.data.numpy(), s=90, label="Actual")
 pl.scatter(data_time_steps[1:], predictions, label="Predicted")
 pl.legend()
 pl.show()
+
+
