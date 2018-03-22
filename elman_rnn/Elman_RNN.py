@@ -27,7 +27,7 @@ w2 = torch.FloatTensor(hidden_size, output_size).type(dtype)
 init.normal(w2, 0.0, 0.3)
 w2 = Variable(w2, requires_grad=True)
 
-def forward(x,context_state, w1, w2):
+def forward(input, context_state, w1, w2):
   xh = torch.cat((input, context_state), 1)
   context_state = torch.tanh(xh.mm(w1))
   out = context_state.mm(w2)
@@ -39,7 +39,7 @@ for i in range(epochs):
   for j in range(x.size(0)):
     input = x[j:(j+1)]
     target = y[j:(j+1)]
-    (pred, context_state) = forward(x, context_state, w1, w2)
+    (pred, context_state) = forward(input, context_state, w1, w2)
     loss = (pred - target).pow(2).sum()/2
     total_loss += loss
     loss.backward()
