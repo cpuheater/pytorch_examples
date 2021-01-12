@@ -44,7 +44,6 @@ for i in range(epochs):
     w2.data -= lr * w2.grad.data
     w1.grad.data.zero_()
     w2.grad.data.zero_()
-    context_state = context_state.clone()
   if i % 10 == 0:
      print("Epoch: {} loss {}".format(i, total_loss.item()))
 
@@ -55,7 +54,6 @@ predictions = []
 for i in range(x.size(0)):
   input = x[i:i+1]
   (pred, context_state) = forward(input, context_state, w1, w2)
-  context_state = context_state
   predictions.append(pred.data.numpy().ravel()[0])
 
 
