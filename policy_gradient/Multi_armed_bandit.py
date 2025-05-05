@@ -1,8 +1,10 @@
 import numpy as np
 import torch
-from torch.autograd import Variable
 
-dtype = torch.FloatTensor
+
+torch.manual_seed(1)
+np.random.seed(1)
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 def pull_arm(bandit):
       result = np.random.randn(1)
@@ -14,11 +16,10 @@ def pull_arm(bandit):
 bandits = [0.1, 1, -0.4, -5]
 num_bandits = len(bandits)
 
-w = Variable(torch.ones(num_bandits).type(dtype), requires_grad=True)
+w = torch.ones(num_bandits, requires_grad=True, dtype=torch.float)
 rewards = np.zeros(num_bandits)
 
 lr = 0.001
-
 
 for t in range(1000):
   if np.random.rand(1) < 0.1:

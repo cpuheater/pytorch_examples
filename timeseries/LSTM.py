@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import torch
 import torch.nn as nn
-from torch.autograd import Variable
 import numpy as np
 
 training_set = pd.read_csv('./monthly-lake-erie-levels-1921-19.csv')
@@ -44,14 +43,10 @@ x, y = sliding_windows(training_data, seq_length)
 
 train_size = int(len(y) * 0.7)
 test_size = len(y) - train_size
-trainX = torch.Tensor(np.array(x[0:train_size]))
-trainX = Variable(trainX)
-testX = torch.Tensor(np.array(x[train_size:len(x)]))
-testX = Variable(testX)
-trainY = torch.Tensor(np.array(y[0:train_size]))
-trainY = Variable(trainY)
-testY = torch.Tensor(np.array(y[train_size:len(y)]))
-testY = Variable(testY)
+trainX = torch.tensor(np.array(x[0:train_size]), requires_grad=True, dtype=torch.float)
+testX = torch.tensor(np.array(x[train_size:len(x)]), requires_grad=True, dtype=torch.float)
+trainY = torch.tensor(np.array(y[0:train_size]), requires_grad=True, dtype=torch.float)
+testY = torch.tensor(np.array(y[train_size:len(y)]), requires_grad=True, dtype=torch.float)
 
 
 class LSTM(nn.Module):
@@ -68,10 +63,10 @@ class LSTM(nn.Module):
         self.fc = nn.Linear(hidden_size, num_classes)
 
     def forward(self, x):
-        h_0 = Variable(torch.zeros(
-            self.num_layers, x.size(0), self.hidden_size))
-        c_0 = Variable(torch.zeros(
-            self.num_layers, x.size(0), self.hidden_size))
+        h_0 = torch.zeros((
+            self.num_layers, x.size(0), self.hidden_size), requires_grad=True)
+        c_0 = torch.zeros((
+            self.num_layers, x.size(0), self.hidden_size), requires_grad=True)
         # Propagate input through LSTM
         ula, (h_out, _) = self.lstm(x, (h_0, c_0))
         h_out = h_out.view(-1, self.hidden_size)
@@ -92,7 +87,7 @@ for epoch in range(num_epochs):
     loss = criterion(outputs, trainY)
     loss.backward()
     optimizer.step()
-    print("Epoch: %d, loss: %1.5f" % (epoch, loss.data[0]))
+    print("Epoch: %d, loss: %1.5f" % (epoch, loss.item()))
 
 
 lstm.eval()

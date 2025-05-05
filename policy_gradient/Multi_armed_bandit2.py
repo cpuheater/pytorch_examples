@@ -22,8 +22,8 @@ class Policy(nn.Module):
       return ones[action, :]
 
     def pull_arm(self, bandit, action):
-      answer = np.random.randn(1)
-      if bandit[action] > answer:
+      result = np.random.randn(1)
+      if bandit[action] > result:
           return 1
       else:
           return -1

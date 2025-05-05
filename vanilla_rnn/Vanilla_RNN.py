@@ -5,9 +5,8 @@ from torch.autograd import Variable
 import torch.optim as optim
 import pylab as pl
 import torch.nn.init as init
-import math
 
-dtype = torch.FloatTensor
+dtype = torch.float
 
 num_time_steps = 10
 input_size = 1
@@ -18,11 +17,11 @@ lr=0.01
 time_steps = np.linspace(0, 10, num_time_steps)
 data = np.sin(time_steps)
 data = data.reshape(num_time_steps, 1)
-x = torch.Tensor(data[:-1]).type(dtype).view(1, num_time_steps - 1, 1)
-y = torch.Tensor(data[1:]).type(dtype).view(1, num_time_steps - 1, 1)
+x = torch.tensor(data[:-1], dtype=dtype).view(1, num_time_steps - 1, 1)
+y = torch.tensor(data[1:], dtype=dtype).view(1, num_time_steps - 1, 1)
 
 class Net(nn.Module):
-    def __init__(self, ):
+    def __init__(self, input_size, hidden_size, output_size):
         super(Net, self).__init__()
 
         self.rnn = nn.RNN(
@@ -35,29 +34,24 @@ class Net(nn.Module):
           init.normal(p, mean=0.0, std=0.001)
         self.linear = nn.Linear(hidden_size, output_size)
 
-    def forward(self, x, hidden_prev):
+    def forward(self, x, hidden_prev = None):
        out, hidden_prev = self.rnn(x, hidden_prev)
        out = out.view(-1, hidden_size)
-       out = torch.stack(self.linear(out), dim=1)
+       out = self.linear(out)
        return out, hidden_prev
 
-model = Net()
+model = Net(input_size, hidden_size, output_size)
 criterion = nn.MSELoss()
 optimizer = optim.Adam(model.parameters(), lr)
 
-hidden_prev = Variable(torch.zeros(1, 1, hidden_size))
-x, y = Variable(x), Variable(y)
-
 for iter in range(1000):
-      output, hidden_prev = model(x, hidden_prev)
-      hidden_prev = Variable(hidden_prev.data)
-      print(hidden_prev.data.numpy())
+      output, _ = model(x)
       loss = criterion(output, y)
       model.zero_grad()
       loss.backward()
       optimizer.step()
       if iter % 100 == 0:
-        print("Iteration: {} loss {}".format(iter, loss.data[0]))
+        print("Iteration: {} loss {}".format(iter, loss.item()))
 
 predictions = []
 input = x[:, 0,:]
